@@ -45,11 +45,20 @@ def save_ip(ip):
 
 def update_firestore(ip):
     now = datetime.datetime.now().isoformat()
-    doc_ref = db.collection(collection).document(hostname)
+    # 最新IPを更新
+    doc_ref = db.collection("hosts").document(hostname)
     doc_ref.set({
         "ip": ip,
         "updated_at": now
     }, merge=True)
+
+    # 履歴として追加
+    history_ref = db.collection("history").document(hostname).collection("logs").document(now)
+    history_ref.set({
+        "ip": ip,
+        "timestamp": now
+    })
+
     print(f"[{now}] IP更新: {hostname} = {ip}")
 
 if __name__ == "__main__":
